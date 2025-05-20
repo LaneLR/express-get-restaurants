@@ -1,15 +1,26 @@
 const express = require("express");
 const router = express.Router();
-const Restaurant = require("../models/index");
+const {Restaurant, Menu, Item} = require("../models/index");
 
 router.get("/", async (req, res) => {
-  const restaurants = await Restaurant.findAll();
+  const restaurants = await Restaurant.findAll({
+    include: [
+      {
+        model: Menu,
+        include: [
+          {
+            model: Item
+          }
+        ]
+      }
+    ]
+  });
   res.json(restaurants);
 });
 
 router.get("/:id", async (req, res) => {
   try {
-    const id = req.params.id - 1;
+    const id = req.params.id;
     const restaurants = await Restaurant.findByPk(id);
     res.json(restaurants);
   } catch (err) {
