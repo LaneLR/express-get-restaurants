@@ -28,18 +28,18 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-  try {
-    const id = req.params.id - 1;
-    const { name, location, cuisine } = req.body;
-    const updateRestaurant = await Restaurant.update(
-      { name, location, cuisine },
-      { where: { id } }
-    );
-    const updatedRestaurant = await Restaurant.findByPk(id);
-    res.json(updatedRestaurant);
-  } catch (err) {
-    next(err);
-  }
+  const id = req.params.id;
+  const { name, location, cuisine } = req.body;
+
+  await Restaurant.update(
+    { name, location, cuisine },
+    {
+      where: { id },
+    }
+  );
+
+  const updatedRestaurant = await Restaurant.findByPk(id);
+  res.json(updatedRestaurant); 
 });
 
 router.delete("/:id", async (req, res) => {
