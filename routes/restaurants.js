@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
   res.json(restaurants);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", async (req, res, next) => {
   try {
     const id = req.params.id;
     const restaurants = await Restaurant.findByPk(id);
@@ -29,19 +29,32 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", [check("name").not().isEmpty().trim(), check("location").not().isEmpty().trim(), check("cuisine").not().isEmpty().trim()], async (req, res) => {
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    res.json({error: errors.array()})
+router.post(
+  "/",
+  [
+    check("name").not().isEmpty().trim().isLength({ min: 10, max: 30 }),
+    check("location").not().isEmpty().trim(),
+    check("cuisine").not().isEmpty().trim(),
+  ],
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      // return res.json({message: "Didn't work"});
+      return res.json({ error: errors.array() });
+    }
+    try {
+      const { name, location, cuisine } = req.body;
+      const newRestaurant = await Restaurant.create({
+        name,
+        location,
+        cuisine,
+      });
+      res.json(newRestaurant);
+    } catch (err) {
+      next(err);
+    }
   }
-  try {
-    const { name, location, cuisine } = req.body;
-    const newRestaurant = await Restaurant.create({ name, location, cuisine });
-    res.json(newRestaurant);
-  } catch (err) {
-    next(err);
-  }
-});
+);
 
 router.put("/:id", async (req, res) => {
   const id = req.params.id;
@@ -58,11 +71,11 @@ router.put("/:id", async (req, res) => {
   res.json(updatedRestaurant);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req, res, next) => {
   try {
     const id = req.params.id - 1;
     await Restaurant.destroy({ where: { id } });
-    res.json({ message: "Restaurant deleted." });
+    return res.json({ message: "Restaurant deleted." });
   } catch (err) {
     next(err);
   }
