@@ -93,4 +93,9 @@ describe("app can", () => {
       await littleSheep.addMenu(wineMenu)
       await spiceGrill.addMenu(dessertsMenu)
   });
+
+  test("if errors are thrown", async () => {
+    const newRestaurant = await request(app).post("/resturants").send({ name: "Jojo's Candy", location: "Miami"})
+    expect(newRestaurant.body).toEqual({})
+  })
 });

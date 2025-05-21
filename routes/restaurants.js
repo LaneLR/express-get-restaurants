@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const {Restaurant, Menu, Item} = require("../models/index");
+const { Restaurant, Menu, Item } = require("../models/index");
+const { check, validationResult } = require("express-validator");
 
 router.get("/", async (req, res) => {
   const restaurants = await Restaurant.findAll({
@@ -9,11 +10,11 @@ router.get("/", async (req, res) => {
         model: Menu,
         include: [
           {
-            model: Item
-          }
-        ]
-      }
-    ]
+            model: Item,
+          },
+        ],
+      },
+    ],
   });
   res.json(restaurants);
 });
@@ -28,7 +29,11 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", [check("name").not().isEmpty().trim(), check("location").not().isEmpty().trim(), check("cuisine").not().isEmpty().trim()], async (req, res) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.json({error: errors.array()})
+  }
   try {
     const { name, location, cuisine } = req.body;
     const newRestaurant = await Restaurant.create({ name, location, cuisine });
@@ -50,13 +55,13 @@ router.put("/:id", async (req, res) => {
   );
 
   const updatedRestaurant = await Restaurant.findByPk(id);
-  res.json(updatedRestaurant); 
+  res.json(updatedRestaurant);
 });
 
 router.delete("/:id", async (req, res) => {
   try {
     const id = req.params.id - 1;
-    const deleteRestaurant = await Restaurant.destroy({ where: { id } });
+    await Restaurant.destroy({ where: { id } });
     res.json({ message: "Restaurant deleted." });
   } catch (err) {
     next(err);
