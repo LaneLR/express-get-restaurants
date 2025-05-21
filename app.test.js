@@ -130,19 +130,18 @@ describe("app", () => {
       addMenu: jest.fn(),
     };
 
-    const mockItem = {}; // mock items can be plain objects if not using methods
+    const mockItem = {}; 
 
     Menu.create = jest.fn()
-      .mockResolvedValueOnce(mockWineMenu)     // wineMenu
-      .mockResolvedValueOnce(mockDessertsMenu); // dessertsMenu
+      .mockResolvedValueOnce(mockWineMenu)  
+      .mockResolvedValueOnce(mockDessertsMenu); 
 
     Item.create = jest.fn()
-      .mockResolvedValue(mockItem); // or use mockResolvedValueOnce repeatedly
+      .mockResolvedValue(mockItem); 
 
     Restaurant.findByPk = jest.fn()
-      .mockResolvedValue(mockRestaurant); // use once per restaurant if needed
+      .mockResolvedValue(mockRestaurant); 
 
-    // now your original code works as expected:
     const wineMenu = await Menu.create({ title: "Wines" });
     const dessertsMenu = await Menu.create({ title: "Desserts" });
     
